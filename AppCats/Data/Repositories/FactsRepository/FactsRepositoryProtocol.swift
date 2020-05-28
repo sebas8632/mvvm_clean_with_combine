@@ -7,10 +7,11 @@
 //
 
 import Foundation
-
+import Combine
 
 protocol FactsRepositoryProtocol {
     
-    func getRadomFacts(completion: @escaping((Result<CatFact, NetworkError>) -> Void))
+    func getRandomFacts(completion: @escaping((Result<CatFact, NetworkError>) -> Void))
     
+    func getRandomFacts() -> AnyPublisher<CatFact, NetworkError>
 }

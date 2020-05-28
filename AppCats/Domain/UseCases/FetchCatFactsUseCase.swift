@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 class FetchCatFactsUseCase: FetchCatFactsUseCaseProtocol {
     
@@ -19,7 +20,13 @@ class FetchCatFactsUseCase: FetchCatFactsUseCaseProtocol {
     }
     
     func execute(completion: @escaping (Result<CatFact, NetworkError>) -> Void) {
-        factsRepository.getRadomFacts(completion: completion)
+        factsRepository.getRandomFacts(completion: completion)
+    }
+    
+    //MARK: Combine
+    
+    func execute() -> AnyPublisher<CatFact, NetworkError> {
+        return factsRepository.getRandomFacts()
     }
     
 }

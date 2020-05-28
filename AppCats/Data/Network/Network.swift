@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 class Network {
     
@@ -38,11 +39,37 @@ class Network {
                     return
                 }
                 let object = try JSONDecoder().decode(T.self, from: data)
-                completion(Result.success(object))
+                 completion(Result.success(object))
             } catch {
                 completion(Result.failure(.parsingError))
             }
         }
         dataTask.resume()
+    }
+    
+    //MARK: Combine
+    
+    func getRequest(path: String, method: Method) -> URLRequest {
+        
+        guard let url = URL(string: path) else {
+            preconditionFailure("Bad URL")
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "\(method)"
+        request.allHTTPHeaderFields = ["Content-Type": "application/json"]
+        
+        return request
+    }
+    
+    func call<T: Codable>(path: String, method: Method) -> AnyPublisher<T, NetworkError> {
+        let urlRequest = getRequest(path: path, method: method)
+        
+        return URLSession.shared.dataTaskPublisher(for: urlRequest)
+            .mapError { _ in NetworkError.serverError(errorDescripcion: "error") }
+            .map { $0.data }
+            .decode(type: T.self, decoder: JSONDecoder())
+            .mapError { _ in NetworkError.parsingError }
+            .eraseToAnyPublisher()
     }
 }

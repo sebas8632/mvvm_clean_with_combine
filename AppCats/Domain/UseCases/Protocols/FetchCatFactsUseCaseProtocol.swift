@@ -7,8 +7,12 @@
 //
 
 import Foundation
+import Combine
 
 protocol FetchCatFactsUseCaseProtocol {
         
     func execute(completion: @escaping (Result<CatFact, NetworkError>) -> Void)
+    
+    //MARK: Combine
+    func execute() -> AnyPublisher<CatFact, NetworkError>
 }

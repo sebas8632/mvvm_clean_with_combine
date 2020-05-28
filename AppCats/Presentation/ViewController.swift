@@ -7,16 +7,17 @@
 //
 
 import UIKit
-
+import Combine
 class ViewController: UIViewController {
 
     private var fetchCatFactsUseCase: FetchCatFactsUseCaseProtocol?
     
+    private var publishers = [AnyCancellable]()
     override func viewDidLoad() {
         super.viewDidLoad()
         useCasesInitiliazer()
-        getFact()
-        // Do any additional setup after loading the view.
+        getFactCombine()
+       // getFact()
         
     }
 
@@ -45,20 +46,36 @@ class ViewController: UIViewController {
             
         })
     }
-
-    private func errorManager(error: NetworkError) {
-     
-        switch error {
-        case .internalError:
-            print("Something was wrong")
-        case .parsingError:
-            print("Has ocurred an error parsing the data")
-        case .serverError(let errorServer):
-            print("\(String(describing: errorServer))")
-        default:
-            print("Has occurred an error unexpected")
+    
+    //MARK: Combine
+    
+    private func getFactCombine() {
+        guard let useCase = self.fetchCatFactsUseCase else {
+            print("Has ocurred an error")
+            return
         }
         
+        useCase.execute()
+            .map { $0  }
+            .sink(receiveCompletion: { _ in }) { print("id: \($0.id),\n version: \($0.version),\n text: \($0.text), \n type: \($0.type), \n used: \($0.used)") }
+            .store(in: &publishers)
     }
 }
 
+
+extension ViewController {
+    private func errorManager(error: NetworkError) {
+        
+           switch error {
+           case .internalError:
+               print("Something was wrong")
+           case .parsingError:
+               print("Has ocurred an error parsing the data")
+           case .serverError(let errorServer):
+               print("\(String(describing: errorServer))")
+           default:
+               print("Has occurred an error unexpected")
+           }
+           
+       }
+}

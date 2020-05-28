@@ -7,8 +7,10 @@
 //
 
 import Foundation
+import Combine
 
 class FactsRepository: FactsRepositoryProtocol {
+    
     
     
     private var network: Network
@@ -17,7 +19,7 @@ class FactsRepository: FactsRepositoryProtocol {
         network = Network()
     }
     
-    func getRadomFacts(completion: @escaping ((Result<CatFact, NetworkError>) -> Void)) {
+    func getRandomFacts(completion: @escaping ((Result<CatFact, NetworkError>) -> Void)) {
         
         let baseUrl = AppEndpoints.baseUrl
         let endPoint = Endpoint.random.rawValue
@@ -28,6 +30,15 @@ class FactsRepository: FactsRepositoryProtocol {
         
     }
     
+    //MARK: Combine
     
-    
+    func getRandomFacts() -> AnyPublisher<CatFact, NetworkError> {
+        
+        let baseUrl = AppEndpoints.baseUrl
+        let endPoint = Endpoint.random.rawValue
+        
+        let path: String = "\(baseUrl)\(endPoint)"
+        
+        return network.call(path: path, method: .GET)
+    }    
 }
